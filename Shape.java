@@ -1,24 +1,25 @@
 public abstract class Shape {
-    protected String color;
+    protected String color = "white";
     protected boolean filled;
 
+    // Default Constructor
+    public Shape() {
+        // Keeps the default field values (color = "white", filled = false)
+    }
+
+    // Parameterized Constructor
     public Shape(String color, boolean filled) {
         this.color = color;
         this.filled = filled;
     }
 
-    public String getColor() { return color; }
-    public void setColor(String color) { this.color = color; }
-
-    public boolean isFilled() { return filled; }
-    public void setFilled(boolean filled) { this.filled = filled; }
-
-    // Abstract methods to be overridden by subclasses
+    // Abstract methods to be implemented by subclasses
     public abstract double getArea();
     public abstract double getPerimeter();
     public abstract void resize(double factor) throws InvalidShapeException;
 
-    @Override
+    // Overridden toString() Method
+    @Override 
     public String toString() {
         return "Shape[color=" + color + ", filled=" + filled + "]";
     }

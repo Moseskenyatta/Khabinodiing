@@ -1,162 +1,90 @@
-import java.util.Arrays;
-
-// ==========================================
-// 1. THE MAIN APPLICATION ENGINE
-// ==========================================
 public class ShapeDemo {
 
-    public static void main(String[] args) {
-        try {
-            Shape[] shapes = {
-                new Circle("Red", true, 5.0),
-                new Rectangle("Blue", false, 4.0, 6.0),
-                new Triangle("Green", true, 3.0, 4.0, 5.0)
-            };
-
-            printAreas(shapes);
-
-            Shape big = largest(shapes);
-            System.out.println("\n--- Largest Shape Object ---");
-            if (big != null) {
-                System.out.println(big + " with an area of: " + String.format("%.2f", big.getArea()));
-            }
-        } catch (InvalidShapeException e) {
-            System.out.println("Error: " + e.getMessage());
-        }
-    }
-
+    // Method to print the area of each shape using dynamic binding
     public static void printAreas(Shape[] shapes) {
-        System.out.println("--- Polymorphic Tracking: Areas ---");
-        for (Shape shape : shapes) {
-            if (shape != null) {
-                System.out.println(shape + " has an area of: " + String.format("%.2f", shape.getArea()));
+        System.out.println("--- Printing Shape Areas (Dynamic Binding) ---");
+
+        for (Shape s : shapes) {
+            if (s != null) {
+                System.out.printf(
+                    "%s -> Area: %.2f%n",
+                    s.getClass().getSimpleName(),
+                    s.getArea()
+                );
             }
         }
     }
 
+    // Method to find and return the shape with the largest area
     public static Shape largest(Shape[] shapes) {
         if (shapes == null || shapes.length == 0) {
             return null;
         }
 
-        Shape largestShape = shapes;
-        for (Shape shape : shapes) {
-            if (shape != null && largestShape != null) {
-                if (shape.getArea() > largestShape.getArea()) {
-                    largestShape = shape;
-                }
+        // Start by assuming the first shape is the largest
+        Shape largestShape = shapes[0];
+
+        for (int i = 1; i < shapes.length; i++) {
+            if (shapes[i] != null &&
+                shapes[i].getArea() > largestShape.getArea()) {
+
+                largestShape = shapes[i];
             }
         }
+
         return largestShape;
     }
-}
 
-// ==========================================
-// 2. THE CUSTOM EXCEPTION
-// ==========================================
-class InvalidShapeException extends Exception {
-    public InvalidShapeException(String message) {
-        super(message);
-    }
-}
+    public static void main(String[] args) {
 
-// ==========================================
-// 3. THE ABSTRACT BASE CLASS
-// ==========================================
-abstract class Shape {
-    private String color;
-    private boolean filled;
+        System.out.println("=== PART D: POLYMORPHISM & DYNAMIC BINDING DEMO ===\n");
 
-    public Shape(String color, boolean filled) {
-        this.color = color;
-        this.filled = filled;
-    }
+        try {
 
-    public String getColor() { return color; }
-    public boolean isFilled() { return filled; }
+            // Create an array of different shapes
+            Shape[] shapes = new Shape[3];
 
-    public abstract double getArea();
+            shapes[0] = new Circle(5.0, "Red", true);
+            shapes[1] = new Rectangle(4.0, 6.0, "Blue", false);
+            shapes[2] = new Triangle(3.0, 4.0, 5.0, "Green", true);
 
-    @Override
-    public String toString() {
-        return String.format("Shape[Color=%s, Filled=%b]", color, filled);
-    }
-}
+            // Test printAreas method
+            printAreas(shapes);
+            System.out.println();
 
-// ==========================================
-// 4. CONCRETE SHAPE SUBCLASSES
-// ==========================================
+            // Test largest method
+            Shape biggest = largest(shapes);
 
-class Circle extends Shape {
-    private double radius;
+            System.out.println("--- Largest Shape Found ---");
+            System.out.println(biggest);
 
-    public Circle(String color, boolean filled, double radius) throws InvalidShapeException {
-        super(color, filled);
-        if (radius <= 0) {
-            throw new InvalidShapeException("Radius must be greater than zero.");
+            if (biggest != null) {
+                System.out.printf(
+                    "With an Area of: %.2f%n",
+                    biggest.getArea()
+                );
+            }
+
+        } catch (InvalidShapeException e) {
+            System.out.println("Initialization Error: " + e.getMessage());
         }
-        this.radius = radius;
-    }
 
-    @Override
-    public double getArea() {
-        return Math.PI * radius * radius;
-    }
+        System.out.println("\n=== PART C: EXCEPTION CATCHING DEMO ===\n");
 
-    @Override
-    public String toString() {
-        return String.format("Circle[Radius=%.1f, %s]", radius, super.toString());
-    }
-}
+        // Demonstrate catching the custom exception
+        try {
+            System.out.println(
+                "Attempting to create an invalid Triangle (sides 1, 2, 10)..."
+            );
 
-class Rectangle extends Shape {
-    private double width;
-    private double height;
+            Shape invalidTriangle =
+                new Triangle(1, 2, 10, "Yellow", false);
 
-    public Rectangle(String color, boolean filled, double width, double height) throws InvalidShapeException {
-        super(color, filled);
-        if (width <= 0 || height <= 0) {
-            throw new InvalidShapeException("Width and height must be greater than zero.");
+            System.out.println(invalidTriangle);
+
+        } catch (InvalidShapeException e) {
+            System.out.println("[CAUGHT EXPECTED EXCEPTION SUCCESSFULLY]");
+            System.out.println("Exception message: " + e.getMessage());
         }
-        this.width = width;
-        this.height = height;
-    }
-
-    @Override
-    public double getArea() {
-        return width * height;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("Rectangle[Width=%.1f, Height=%.1f, %s]", width, height, super.toString());
-    }
-}
-
-class Triangle extends Shape {
-    private double s1, s2, s3;
-
-    public Triangle(String color, boolean filled, double s1, double s2, double s3) throws InvalidShapeException {
-        super(color, filled);
-        if (s1 <= 0 || s2 <= 0 || s3 <= 0) {
-            throw new InvalidShapeException("All sides must be greater than zero.");
-        }
-        if ((s1 + s2 <= s3) || (s1 + s3 <= s2) || (s2 + s3 <= s1)) {
-            throw new InvalidShapeException("The given sides do not form a valid triangle.");
-        }
-        this.s1 = s1;
-        this.s2 = s2;
-        this.s3 = s3;
-    }
-
-    @Override
-    public double getArea() {
-        double s = (s1 + s2 + s3) / 2.0;
-        return Math.sqrt(s * (s - s1) * (s - s2) * (s - s3));
-    }
-
-    @Override
-    public String toString() {
-        return String.format("Triangle[Sides=%.1f, %.1f, %.1f, %s]", s1, s2, s3, super.toString());
     }
 }
